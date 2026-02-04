@@ -20,6 +20,8 @@ const aiRoutes = require("./routes/ai");
 const app = express();
 
 // Parsers
+app.use("/uploads", express.static("uploads"));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

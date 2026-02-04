@@ -1,53 +1,39 @@
-const express = require('express');
-const multer = require('multer');
-const path = require('path');
-const {
-  uploadResume,
-  getResumes,
-  getResume,
-  deleteResume,
-  getLatestResume,
-} = require('../controllers/resumeController');
-const { protect } = require('../middleware/auth');
+const express = require("express");
+const multer = require("multer");
+const path = require("path");
+const Resume = require("../models/Resume");
 
 const router = express.Router();
 
-// Configure multer for file upload
+// Storage
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/');
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-  },
-});
-
-const fileFilter = (req, file, cb) => {
-  const allowedTypes = [
-    'application/pdf',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  ];
-
-  if (allowedTypes.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error('Invalid file type. Only PDF and DOCX are allowed.'), false);
+  destination: "uploads/",
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
   }
-};
-
-const upload = multer({
-  storage: storage,
-  limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB
-  },
-  fileFilter: fileFilter,
 });
 
-router.post('/upload', protect, upload.single('resume'), uploadResume);
-router.get('/', protect, getResumes);
-router.get('/latest', protect, getLatestResume);
-router.get('/:id', protect, getResume);
-router.delete('/:id', protect, deleteResume);
+const upload = multer({ storage });
+
+// Upload resume
+router.post("/upload", upload.single("resume"), async (req, res) => {
+  try {
+    const resume = await Resume.create({
+      filename: req.file.filename,
+      originalName: req.file.originalname,
+      path: req.file.path,
+      uploadedAt: new Date()
+    });
+
+    res.json({
+      success: true,
+      resumeId: resume._id,
+      file: resume
+    });
+
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
 module.exports = router;
