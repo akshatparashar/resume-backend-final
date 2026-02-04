@@ -4,22 +4,24 @@ const multer = require("multer");
 const router = express.Router();
 
 // Vercel-safe memory storage
+const multer = require("multer");
+
 const upload = multer({
-  limits: { fileSize: 10 * 1024 * 1024 } // 10MB
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 }
 });
+
 
 // Upload resume
 router.post("/upload", upload.single("resume"), async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        message: "No file uploaded"
-      });
+      return res.status(400).json({ success: false, message: "No file uploaded" });
     }
 
     const resume = await Resume.create({
       filename: req.file.originalname,
+      uploadedAt: new Date(),
       fileBuffer: req.file.buffer
     });
 
@@ -30,10 +32,7 @@ router.post("/upload", upload.single("resume"), async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.status(500).json({
-      success: false,
-      message: "Upload failed"
-    });
+    res.status(500).json({ success: false, error: err.message });
   }
 });
 
