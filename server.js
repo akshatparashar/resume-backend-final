@@ -6,33 +6,23 @@ const morgan = require("morgan");
 const rateLimit = require("express-rate-limit");
 const connectDB = require("./config/database");
 
-// Load env vars
+// Load env
 dotenv.config();
 
-// Connect DB (safe for Vercel)
-connectDB();
-
-const resumeRoutes = require("./routes/resumes");
-const jobMatchRoutes = require("./routes/jobMatch");
-const aiRoutes = require("./routes/ai");
-
-app.use("/api/resumes", resumeRoutes);
-
+// Init app FIRST
 const app = express();
 
-// Parsers
+// Connect DB
+connectDB();
 
+// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "*",
-  methods: ["GET","POST","PUT","DELETE"],
-  allowedHeaders: ["Content-Type"]
+  origin: process.env.FRONTEND_URL || "*"
 }));
 
-
-// Security
 app.use(helmet());
 
 // Logs
@@ -40,52 +30,34 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 
-app.options("*", cors());
-
 // Rate limit
-const limiter = rateLimit({
+app.use(rateLimit({
   windowMs: 10 * 60 * 1000,
   max: 100,
-});
+}));
 
 // Routes
-app.use("/api/auth", authRoutes);
+const resumeRoutes = require("./routes/resumes");
+const jobMatchRoutes = require("./routes/jobMatch");
+const aiRoutes = require("./routes/ai");
+
 app.use("/api/resumes", resumeRoutes);
 app.use("/api/job-match", jobMatchRoutes);
 app.use("/api/ai", aiRoutes);
 
-app.use(limiter);
-
-
-// Root test (IMPORTANT for Vercel)
+// Root
 app.get("/", (req, res) => {
   res.send("Backend running 🚀");
 });
 
 // Health
 app.get("/api/health", (req, res) => {
-  res.json({
-    success: true,
-    message: "AI Resume Analyzer API running",
-  });
-});
-
-// Error handler
-app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(err.statusCode || 500).json({
-    success: false,
-    message: err.message || "Server Error",
-  });
+  res.json({ success: true });
 });
 
 // 404
 app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: "Route not found",
-  });
+  res.status(404).json({ success:false, message:"Route not found" });
 });
 
-// 🚨 DO NOT LISTEN ON PORT FOR VERCEL
 module.exports = app;
