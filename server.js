@@ -12,10 +12,11 @@ dotenv.config();
 // Connect DB (safe for Vercel)
 connectDB();
 
-const authRoutes = require("./routes/auth");
 const resumeRoutes = require("./routes/resumes");
 const jobMatchRoutes = require("./routes/jobMatch");
 const aiRoutes = require("./routes/ai");
+
+app.use("/api/resumes", resumeRoutes);
 
 const app = express();
 

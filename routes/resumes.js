@@ -1,6 +1,5 @@
 const express = require("express");
 const multer = require("multer");
-const Resume = require("../models/Resume");
 
 const router = express.Router();
 
