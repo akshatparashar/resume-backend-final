@@ -39,18 +39,22 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 
+app.options("*", cors());
+
 // Rate limit
 const limiter = rateLimit({
   windowMs: 10 * 60 * 1000,
   max: 100,
 });
-app.use(limiter);
 
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/resumes", resumeRoutes);
 app.use("/api/job-match", jobMatchRoutes);
 app.use("/api/ai", aiRoutes);
+
+app.use(limiter);
+
 
 // Root test (IMPORTANT for Vercel)
 app.get("/", (req, res) => {
