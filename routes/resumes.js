@@ -6,24 +6,24 @@ const Resume = require("../models/Resume");
 const router = express.Router();
 
 // Storage
-const storage = multer.diskStorage({
-  destination: "uploads/",
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  }
+const upload = multer({
+  limits: { fileSize: 10 * 1024 * 1024 } // 10MB
 });
 
-const upload = multer({ storage });
+
+
 
 // Upload resume
 router.post("/upload", upload.single("resume"), async (req, res) => {
   try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: "No file uploaded" });}
     const resume = await Resume.create({
-      filename: req.file.filename,
-      originalName: req.file.originalname,
-      path: req.file.path,
-      uploadedAt: new Date()
+      filename: req.file.originalname,
+      uploadedAt: new Date(),
+      fileBuffer: req.file.buffer
     });
+    
 
     res.json({
       success: true,
