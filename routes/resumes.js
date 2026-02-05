@@ -19,7 +19,7 @@ router.post("/upload", upload.single("resume"), async (req, res) => {
       return res.status(400).json({ success: false, message: "No file uploaded" });
     }
 
-    const resume = await Resume.create({
+    const resume = await resume.create({
       filename: req.file.originalname,
       uploadedAt: new Date(),
       fileBuffer: req.file.buffer
