@@ -1,36 +1,39 @@
 const jobRoles = require("../data/jobRoles");
 
-function recommendRoles(resumeSkills) {
+function recommendRoles(skills) {
 
-    const recommendations = [];
-  
-    const normalizedResumeSkills = resumeSkills.map(s =>
-      s.toLowerCase().trim()
-    );
-  
-    for (const role in jobRoles) {
-  
-      const requiredSkills = jobRoles[role].map(s =>
-        s.toLowerCase().trim()
-      );
-  
-      const matchedSkills = normalizedResumeSkills.filter(skill =>
-        requiredSkills.includes(skill)
-      );
-  
-      const score = Math.round(
-        (matchedSkills.length / requiredSkills.length) * 100
-      );
-  
-      recommendations.push({
-        role,
-        score
-      });
-  
-    }
-  
-    recommendations.sort((a, b) => b.score - a.score);
-  
-    return recommendations.slice(0, 5);
+  if (!skills || skills.length === 0) {
+    return [];
   }
+
+  // normalize resume skills
+  const normalizedSkills = skills.map(skill =>
+    skill.toLowerCase().trim()
+  );
+
+  const results = [];
+
+  for (const role of jobRoles) {
+
+    const roleSkills = role.skills.map(skill =>
+      skill.toLowerCase().trim()
+    );
+
+    const matched = normalizedSkills.filter(skill =>
+      roleSkills.includes(skill)
+    );
+
+    const score = Math.round(
+      (matched.length / roleSkills.length) * 100
+    );
+
+    results.push({
+      role: role.role,
+      score: score
+    });
+  }
+
+  return results.sort((a, b) => b.score - a.score);
+}
+
 module.exports = { recommendRoles };
