@@ -1,13 +1,11 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { GoogleGenAI } = require("@google/genai");
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const ai = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY
+});
 
 exports.analyzeResume = async (resumeData) => {
   try {
-
-    const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-pro"
-    });
 
     const prompt = `
 Analyze the following resume and return JSON only with fields:
@@ -17,17 +15,14 @@ Resume:
 ${resumeData}
 `;
 
-    const result = await model.generateContent(prompt);
+    const response = await ai.models.generateContent({
+      model: "gemini-1.5-flash",
+      contents: prompt
+    });
 
-    const response = await result.response;
-    const text = response.text();
-    return JSON.parse(text);
-
-
-
+    return JSON.parse(response.text);
   } catch (error) {
-    console.error("GEMINI ERROR:", error.message);
-    console.error(error);
+    console.error("GEMINI ERROR:", error);
     throw error;
   }
 };
