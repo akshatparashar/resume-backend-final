@@ -1,3 +1,4 @@
+const { analyzeResume } = require("../services/aiAnalyzer");
 const express = require("express");
 const multer = require("multer");
 
@@ -52,5 +53,28 @@ router.post("/upload", upload.single("resume"), async (req, res) => {
     });
   }
 });
+router.get("/analyze/:id", async (req, res) => {
+  try {
 
+    const resume = await Resume.findById(req.params.id);
+
+    if (!resume) {
+      return res.status(404).json({ success:false, message:"Resume not found" });
+    }
+
+    const aiResult = await analyzeResume(resume.data);
+
+    res.json({
+      success:true,
+      resumeId:resume._id,
+      analysis:aiResult
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success:false,
+      error:error.message
+    });
+  }
+});
 module.exports = router;
