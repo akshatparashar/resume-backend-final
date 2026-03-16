@@ -3,8 +3,6 @@ const multer = require("multer");
 
 const router = express.Router();
 
-// Vercel-safe memory storage
-const multer = require("multer");
 
 const upload = multer({
   storage: multer.memoryStorage(),
