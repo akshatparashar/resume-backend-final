@@ -27,8 +27,7 @@ Return JSON only.
       input: prompt
     });
 
-    return response.output_text;
-
+    return response.output[0].content[0].text;
   } catch (error) {
     console.error("OPENAI ERROR:", error);
     throw new Error("AI analysis failed");
