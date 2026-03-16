@@ -160,7 +160,7 @@ router.get("/recommend-roles/:id", async (req, res) => {
 
 });
 
-rrouter.get("/:id", async (req, res) => {
+router.get("/:id", async (req, res) => {
 
   try {
 
