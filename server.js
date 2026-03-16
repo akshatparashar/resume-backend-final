@@ -22,7 +22,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "*"
+  origin: [
+    "http://localhost:3000",
+    "https://ai-resume-analyzer007.netlify.app"
+  ],
+  methods: ["GET","POST","PUT","DELETE"],
+  credentials: true
 }));
 
 app.use(helmet());
