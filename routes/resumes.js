@@ -64,8 +64,7 @@ router.get("/analyze/:id", async (req, res) => {
       return res.status(404).json({ success:false, message:"Resume not found" });
     }
 
-    const aiResult = await analyzeResume(resume.data);
-
+    const aiResult = await analyzeResume(resume.resumeText);
     res.json({
       success:true,
       resumeId:resume._id,
@@ -80,7 +79,6 @@ router.get("/analyze/:id", async (req, res) => {
   }
 });
 router.post("/match-role/:id", async (req, res) => {
-
   try {
 
     const { role } = req.body;
@@ -103,7 +101,15 @@ router.post("/match-role/:id", async (req, res) => {
       });
     }
 
-    const matchResult = await matchJobDescription(resume, jobDescription);
+    // Convert DB structure to matcher structure
+    const resumeData = {
+      parsedContent: resume.resumeText || "",
+      extractedData: {
+        skills: resume.parsedData?.skills || []
+      }
+    };
+
+    const matchResult = await matchJobDescription(resumeData, jobDescription);
 
     res.json({
       success: true,
@@ -119,6 +125,5 @@ router.post("/match-role/:id", async (req, res) => {
     });
 
   }
-
 });
 module.exports = router;
