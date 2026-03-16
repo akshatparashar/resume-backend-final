@@ -160,7 +160,7 @@ router.get("/recommend-roles/:id", async (req, res) => {
 
 });
 
-router.get("/:id", async (req, res) => {
+rrouter.get("/:id", async (req, res) => {
 
   try {
 
@@ -175,8 +175,7 @@ router.get("/:id", async (req, res) => {
 
     res.json({
       success: true,
-      parsedData: resume.parsedData,
-      skills: resume.parsedData?.skills
+      resume: resume
     });
 
   } catch (error) {
