@@ -1,12 +1,28 @@
 const mongoose = require("mongoose");
 
 const ResumeSchema = new mongoose.Schema({
-  filename: String,
+
+  filename: {
+    type: String,
+    required: true
+  },
+
   uploadedAt: {
     type: Date,
     default: Date.now
   },
-  fileBuffer: Buffer
+
+  resumeText: {
+    type: String
+  },
+
+  parsedData: {
+    name: String,
+    email: String,
+    phone: String,
+    skills: [String]
+  }
+
 });
 
 module.exports = mongoose.model("Resume", ResumeSchema);
