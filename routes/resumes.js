@@ -1,3 +1,5 @@
+const { matchJobDescription } = require("../utils/jobMatcher");
+const jobDescriptions = require("../data/jobDescriptions");
 const { analyzeResume } = require("../services/aiAnalyzer");
 const express = require("express");
 const multer = require("multer");
@@ -76,5 +78,47 @@ router.get("/analyze/:id", async (req, res) => {
       error:error.message
     });
   }
+});
+router.post("/match-role/:id", async (req, res) => {
+
+  try {
+
+    const { role } = req.body;
+
+    const resume = await Resume.findById(req.params.id);
+
+    if (!resume) {
+      return res.status(404).json({
+        success: false,
+        message: "Resume not found"
+      });
+    }
+
+    const jobDescription = jobDescriptions[role];
+
+    if (!jobDescription) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid role"
+      });
+    }
+
+    const matchResult = await matchJobDescription(resume, jobDescription);
+
+    res.json({
+      success: true,
+      role,
+      match: matchResult
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+
+  }
+
 });
 module.exports = router;
