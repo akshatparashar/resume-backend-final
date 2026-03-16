@@ -12,6 +12,8 @@ dotenv.config();
 // Init app FIRST
 const app = express();
 
+app.set("trust proxy", 1);
+
 // Connect DB
 connectDB();
 
