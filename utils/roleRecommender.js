@@ -2,20 +2,17 @@ const jobRoles = require("../data/jobRoles");
 
 function recommendRoles(skills) {
 
-  if (!skills || skills.length === 0) {
-    return [];
-  }
+  if (!skills || skills.length === 0) return [];
 
-  // normalize resume skills
   const normalizedSkills = skills.map(skill =>
     skill.toLowerCase().trim()
   );
 
   const results = [];
 
-  for (const role of jobRoles) {
+  for (const roleName in jobRoles) {
 
-    const roleSkills = role.skills.map(skill =>
+    const roleSkills = jobRoles[roleName].map(skill =>
       skill.toLowerCase().trim()
     );
 
@@ -28,9 +25,10 @@ function recommendRoles(skills) {
     );
 
     results.push({
-      role: role.role,
+      role: roleName,
       score: score
     });
+
   }
 
   return results.sort((a, b) => b.score - a.score);
