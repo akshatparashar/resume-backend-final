@@ -1,3 +1,4 @@
+const { recommendRoles } = require("../utils/roleRecommender");
 const { matchJobDescription } = require("../utils/jobMatcher");
 const jobDescriptions = require("../data/jobDescriptions");
 const { analyzeResume } = require("../services/aiAnalyzer");
@@ -125,5 +126,37 @@ router.post("/match-role/:id", async (req, res) => {
     });
 
   }
+});
+router.get("/recommend-roles/:id", async (req, res) => {
+
+  try {
+
+    const resume = await Resume.findById(req.params.id);
+
+    if (!resume) {
+      return res.status(404).json({
+        success: false,
+        message: "Resume not found"
+      });
+    }
+
+    const skills = resume.parsedData?.skills || [];
+
+    const roles = recommendRoles(skills);
+
+    res.json({
+      success: true,
+      recommendedRoles: roles
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+
+  }
+
 });
 module.exports = router;
