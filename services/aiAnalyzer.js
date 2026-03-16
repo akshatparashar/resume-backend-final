@@ -7,22 +7,32 @@ const ai = new GoogleGenAI({
 exports.analyzeResume = async (resumeData) => {
   try {
 
-    const prompt = `
-Analyze the following resume and return JSON only with fields:
-score, strengths, missingSkills, suggestions.
+    // TEMPORARY MOCK AI RESPONSE
+    return {
+      score: 82,
+      strengths: [
+        "Strong JavaScript knowledge",
+        "Good frontend development skills",
+        "Experience with React and Node.js"
+      ],
+      missingSkills: [
+        "Docker",
+        "AWS",
+        "System Design"
+      ],
+      suggestions: [
+        "Add measurable achievements in projects",
+        "Include more backend technologies",
+        "Improve project descriptions"
+      ]
+    };
 
-Resume:
-${resumeData}
-`;
-
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
     const response = await ai.models.generateContent({
       model: "gemini-2.0-flash-exp",
       contents: prompt
     });
-
-    return JSON.parse(response.text);
-  } catch (error) {
-    console.error("GEMINI ERROR:", error);
-    throw error;
-  }
-};
