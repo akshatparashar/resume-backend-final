@@ -24,7 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors({
   origin: [
     "http://localhost:3000",
-    "https://ai-resume-analyzer007.netlify.app"
+    "https://resume-frontend-omega.vercel.app"
   ],
   methods: ["GET","POST","PUT","DELETE"],
   credentials: true
