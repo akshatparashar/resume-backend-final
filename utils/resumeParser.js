@@ -9,7 +9,7 @@ exports.parseResume = async (filePath, fileType) => {
   try {
     let text = '';
 
-    if (fileType === 'application/pdf') {
+    if (fileType.includes("pdf")){
       const dataBuffer = await fs.readFile(filePath);
       const data = await pdfParse(dataBuffer);
       text = data.text;
@@ -20,7 +20,7 @@ exports.parseResume = async (filePath, fileType) => {
       text = result.value;
     }
 
-    return text;
+    return text.replace(/\s+/g,' ').trim();
   } catch (error) {
     throw new Error(`Failed to parse resume: ${error.message}`);
   }
@@ -45,11 +45,16 @@ exports.extractResumeData = (text) => {
 
 // Helper functions for extraction
 function extractName(text) {
-  const lines = text.split('\n');
-  // Assume name is in the first few lines
-  return lines[0]?.trim() || 'Not found';
-}
+  const lines = text.split('\n').filter(l => l.trim() !== '');
 
+  for (let line of lines.slice(0,5)) {
+    if (line.length < 40 && !line.includes('@')) {
+      return line.trim();
+    }
+  }
+
+  return "Not found";
+}
 function extractEmail(text) {
   const emailRegex = /[\w\.-]+@[\w\.-]+\.\w+/g;
   const match = text.match(emailRegex);
