@@ -17,12 +17,9 @@ const ResumeSchema = new mongoose.Schema({
   },
 
   parsedData: {
-    name: String,
-    email: String,
-    phone: String,
-    skills: [String]
+    type: Object
   }
 
-});
+}, { strict: false });
 
 module.exports = mongoose.model("Resume", ResumeSchema);
