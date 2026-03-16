@@ -5,15 +5,28 @@ const fs = require('fs').promises;
 /**
  * Parse resume file (PDF or DOCX)
  */
-exports.parseResume = async (filePath, fileType) => {
+exports.parseResume = async (fileInput, fileType, isBuffer = false) => {
   try {
     let text = '';
 
-    if (fileType.includes("pdf")){
-      const dataBuffer = await fs.readFile(filePath);
+    if (fileType.includes("pdf")) {
+
+      const dataBuffer = isBuffer ? fileInput : await fs.readFile(fileInput);
+    
       const data = await pdfParse(dataBuffer);
       text = data.text;
-    } else if (
+    
+    }
+    else if (fileType.includes("word")) {
+
+      const result = await mammoth.extractRawText({
+        buffer: fileInput
+      });
+    
+      text = result.value;
+    
+    }
+    else if (
       fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     ) {
       const result = await mammoth.extractRawText({ path: filePath });

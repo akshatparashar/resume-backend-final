@@ -24,7 +24,7 @@ router.post("/upload", upload.single("resume"), async (req, res) => {
     }
 
     // Convert buffer to temporary text
-    const text = await parseResume(req.file.buffer, req.file.mimetype);
+    const text = await parseResume(req.file.buffer, req.file.mimetype, true);
 
     // Extract structured data
     const structuredData = extractResumeData(text);
