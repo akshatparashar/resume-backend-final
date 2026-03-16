@@ -159,4 +159,34 @@ router.get("/recommend-roles/:id", async (req, res) => {
   }
 
 });
+
+router.get("/:id", async (req, res) => {
+
+  try {
+
+    const resume = await Resume.findById(req.params.id);
+
+    if (!resume) {
+      return res.status(404).json({
+        success: false,
+        message: "Resume not found"
+      });
+    }
+
+    res.json({
+      success: true,
+      parsedData: resume.parsedData,
+      skills: resume.parsedData?.skills
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+
+  }
+
+});
 module.exports = router;
