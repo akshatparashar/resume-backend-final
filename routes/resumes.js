@@ -103,12 +103,16 @@ router.post("/match-role/:id", async (req, res) => {
     }
 
     // Convert DB structure to matcher structure
-    const skills =
+    let skills =
     resume.parsedData?.skills ||
     resume.parsedData?.technicalSkills ||
     resume.parsedData?.extractedSkills ||
     [];
-
+  
+  if (typeof skills === "string") {
+    skills = skills.split(/[,\\n]/).map(s => s.trim()).filter(Boolean);
+  }
+  console.log("Extracted Skills:", skills);
 
     console.log("Parsed skills:", resume.parsedData);
   
@@ -149,11 +153,16 @@ router.get("/recommend-roles/:id", async (req, res) => {
       });
     }
 
-    const skills =
+    let skills =
     resume.parsedData?.skills ||
     resume.parsedData?.technicalSkills ||
     resume.parsedData?.extractedSkills ||
     [];
+  
+  if (typeof skills === "string") {
+    skills = skills.split(/[,\\n]/).map(s => s.trim()).filter(Boolean);
+  }
+  console.log("Extracted Skills:", skills);
 
     const roles = recommendRoles(skills);
 
