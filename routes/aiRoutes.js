@@ -53,8 +53,7 @@ ATS Improvements:
         }
       ],
 
-      model: "llama3-70b-8192"
-
+      model: "llama-3.1-8b-instant"
     });
 
     const analysis = completion.choices[0].message.content;
@@ -84,7 +83,7 @@ router.post("/suggestions", async (req, res) => {
       const { resumeText, skills } = req.body;
   
       const prompt = `
-  You are an ATS resume expert.
+  You are an ATS resume analyzer.
   
   Analyze this resume:
   
@@ -93,12 +92,18 @@ router.post("/suggestions", async (req, res) => {
   Skills:
   ${skills}
   
-  Return ONLY 5 resume improvement suggestions.
+  Return JSON only.
+  
+  {
+   "strengths": ["", "", ""],
+   "weaknesses": ["", "", ""],
+   "missingSkills": ["", "", ""],
+   "suggestions": ["", "", "", "", ""]
+  }
   
   Rules:
-  - One sentence per suggestion
-  - No explanation
-  - No headings
+  - Only JSON
+  - No explanations
   `;
   
       const completion = await groq.chat.completions.create({
@@ -110,20 +115,31 @@ router.post("/suggestions", async (req, res) => {
   
       const text = completion.choices[0].message.content;
   
-      const suggestions = text
-        .split("\n")
-        .map(line => line.replace(/^[-•\d.\s]+/, "").trim())
-        .filter(line => line.length > 10)
-        .slice(0,5);
+      let aiResult;
   
-      res.json({ suggestions });
+      try {
+  
+        aiResult = JSON.parse(text);
+  
+      } catch (err) {
+  
+        const cleaned = text
+          .replace(/```json/g, "")
+          .replace(/```/g, "")
+          .trim();
+  
+        aiResult = JSON.parse(cleaned);
+  
+      }
+  
+      res.json(aiResult);
   
     } catch (error) {
   
       console.error(error);
   
       res.status(500).json({
-        message: "AI suggestions failed"
+        message: "AI analysis failed"
       });
   
     }
