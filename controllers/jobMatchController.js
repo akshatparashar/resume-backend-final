@@ -29,7 +29,7 @@ exports.matchJob = async (req, res) => {
       }
 
       // Check ownership
-      if (resume.user.toString() !== req.user.id) {
+      if (resume.user && resume.user.toString() !== req.user.id) {
         return res.status(401).json({
           success: false,
           message: 'Not authorized',
