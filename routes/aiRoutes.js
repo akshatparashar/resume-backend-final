@@ -83,28 +83,31 @@ router.post("/suggestions", async (req, res) => {
       const { resumeText, skills } = req.body;
   
       const prompt = `
-  You are an ATS resume analyzer.
-  
-  Analyze this resume:
-  
-  ${resumeText}
-  
-  Skills:
-  ${skills}
-  
-  Return JSON only.
-  
-  {
-   "strengths": ["", "", ""],
-   "weaknesses": ["", "", ""],
-   "missingSkills": ["", "", ""],
-   "suggestions": ["", "", "", "", ""]
-  }
-  
-  Rules:
-  - Only JSON
-  - No explanations
-  `;
+      You are an ATS (Applicant Tracking System) resume evaluator.
+      
+      Analyze this resume.
+      
+      Resume:
+      ${resumeText}
+      
+      Skills:
+      ${skills}
+      
+      Return JSON only in this format:
+      
+      {
+       "atsScore": number,
+       "strengths": ["", "", ""],
+       "weaknesses": ["", "", ""],
+       "missingSkills": ["", "", ""],
+       "suggestions": ["", "", "", "", ""]
+      }
+      
+      Rules:
+      - atsScore must be between 0 and 100
+      - Only return JSON
+      - No explanation
+      `;
   
       const completion = await groq.chat.completions.create({
         model: "llama-3.1-8b-instant",
