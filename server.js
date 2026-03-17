@@ -49,6 +49,7 @@ const jobMatchRoutes = require("./routes/jobMatch");
 const aiRoutes = require("./routes/ai");
 const authRoutes = require("./routes/auth");
 
+
 app.use("/api/resumes", resumeRoutes);
 app.use("/api/job-match", jobMatchRoutes);
 app.use("/api/ai", aiRoutes);
