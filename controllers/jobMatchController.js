@@ -48,8 +48,10 @@ exports.matchJob = async (req, res) => {
     }
 
     // Perform matching
-    const matchResult = matchJobDescription(resume, jobDescription);
-
+    const matchResult = matchJobDescription(
+      resume.parsedData,
+      jobDescription
+    );
     // Save match result
     const jobMatch = await JobMatch.create({
       user: req.user.id,
