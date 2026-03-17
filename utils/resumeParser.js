@@ -79,10 +79,13 @@ function extractName(text) {
 
     const words = line.split(" ");
 
+    const containsNumber = /\d/.test(line);
+
     const isPossibleName =
       words.length >= 2 &&
       words.length <= 3 &&
       line === line.toUpperCase() &&
+      !containsNumber &&
       !blacklist.includes(line);
 
     if (isPossibleName) {
