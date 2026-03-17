@@ -46,7 +46,7 @@ app.use(rateLimit({
 // Routes
 const resumeRoutes = require("./routes/resumes");
 const jobMatchRoutes = require("./routes/jobMatch");
-const aiRoutes = require("./routes/ai");
+const aiRoutes = require("./routes/aiRoutes");
 const authRoutes = require("./routes/auth");
 
 
