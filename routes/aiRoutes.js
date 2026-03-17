@@ -79,54 +79,54 @@ AI Suggestions
 */
 router.post("/suggestions", async (req, res) => {
 
-  try {
-
-    const { resumeText, skills } = req.body;
-
-    const prompt = `
-You are an ATS resume expert.
-
-Analyze this resume:
-
-${resumeText}
-
-Skills:
-${skills}
-
-Give 5 short bullet suggestions to improve the resume.
-`;
-
-    const completion = await groq.chat.completions.create({
-
-      messages: [
-        {
-          role: "user",
-          content: prompt
-        }
-      ],
-
-      model: "llama-3.1-8b-instant"
-
-    });
-
-    const text = completion.choices[0].message.content;
-
-    const suggestions = text
-      .split("\n")
-      .filter(line => line.trim() !== "");
-
-    res.json({ suggestions });
-
-  } catch (error) {
-
-    console.error(error);
-
-    res.status(500).json({
-      message: "AI suggestions failed"
-    });
-
-  }
-
-});
-
+    try {
+  
+      const { resumeText, skills } = req.body;
+  
+      const prompt = `
+  You are an ATS resume expert.
+  
+  Analyze this resume:
+  
+  ${resumeText}
+  
+  Skills:
+  ${skills}
+  
+  Return ONLY 5 resume improvement suggestions.
+  
+  Rules:
+  - One sentence per suggestion
+  - No explanation
+  - No headings
+  `;
+  
+      const completion = await groq.chat.completions.create({
+        model: "llama-3.1-8b-instant",
+        messages: [
+          { role: "user", content: prompt }
+        ]
+      });
+  
+      const text = completion.choices[0].message.content;
+  
+      const suggestions = text
+        .split("\n")
+        .map(line => line.replace(/^[-•\d.\s]+/, "").trim())
+        .filter(line => line.length > 10)
+        .slice(0,5);
+  
+      res.json({ suggestions });
+  
+    } catch (error) {
+  
+      console.error(error);
+  
+      res.status(500).json({
+        message: "AI suggestions failed"
+      });
+  
+    }
+  
+  });
 module.exports = router;
