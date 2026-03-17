@@ -105,7 +105,7 @@ Give 5 short bullet suggestions to improve the resume.
         }
       ],
 
-      model: "llama3-70b-8192"
+      model: "llama-3.1-8b-instant"
 
     });
 
