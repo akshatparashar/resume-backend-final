@@ -29,11 +29,16 @@ exports.parseResume = async (fileInput, fileType, isBuffer = false) => {
     else if (
       fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     ) {
-      const result = await mammoth.extractRawText({ path: filePath });
+      const dataBuffer = isBuffer ? fileInput : await fs.readFile(fileInput);
+    
+      const result = await mammoth.extractRawText({
+        buffer: dataBuffer
+      });
+    
       text = result.value;
     }
 
-    return text.replace(/\s+/g,' ').trim();
+    return text.trim();
   } catch (error) {
     throw new Error(`Failed to parse resume: ${error.message}`);
   }
@@ -58,12 +63,22 @@ exports.extractResumeData = (text) => {
 
 // Helper functions for extraction
 function extractName(text) {
+
   const lines = text.split('\n').filter(l => l.trim() !== '');
 
   for (let line of lines.slice(0,5)) {
-    if (line.length < 40 && !line.includes('@')) {
-      return line.trim();
+
+    const cleanLine = line.trim();
+
+    if (
+      cleanLine.length < 40 &&
+      !cleanLine.includes('@') &&
+      !cleanLine.toLowerCase().includes("resume") &&
+      !cleanLine.toLowerCase().includes("curriculum")
+    ) {
+      return cleanLine;
     }
+
   }
 
   return "Not found";
@@ -75,9 +90,20 @@ function extractEmail(text) {
 }
 
 function extractPhone(text) {
-  const phoneRegex = /(\+?\d{1,3}[-.\s]?)?(\(?\d{3}\)?[-.\s]?)?\d{3}[-.\s]?\d{4}/g;
+  const phoneRegex = /(\+?\d{1,3}[\s-]?)?\(?\d{3,5}\)?[\s.-]?\d{3,5}[\s.-]?\d{3,5}/;
+
   const match = text.match(phoneRegex);
-  return match ? match[0] : '';
+
+  if (!match) return "";
+
+  const phone = match[0];
+
+  // Ignore year ranges like 2022-2026
+  if (/\b(19|20)\d{2}\b/.test(phone)) {
+    return "";
+  }
+
+  return phone;
 }
 
 function extractSkills(text) {
