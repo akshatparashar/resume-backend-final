@@ -1,39 +1,35 @@
 const express = require("express");
 const router = express.Router();
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const Groq = require("groq-sdk");
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const groq = new Groq({
+  apiKey: process.env.GROQ_API_KEY
+});
 
+/*
+AI Resume Analyzer
+*/
 router.post("/analyze", async (req, res) => {
+
   try {
 
     const { resumeText, skills, targetRole, experienceLevel } = req.body;
 
-    if (!resumeText) {
-      return res.status(400).json({
-        message: "Resume text is required"
-      });
-    }
-
-    const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash"
-    });
-
     const prompt = `
 You are an ATS resume analyzer.
 
-Analyze the following resume.
+Analyze the resume below.
 
 Target Role: ${targetRole}
 Experience Level: ${experienceLevel}
 
-Resume Text:
+Resume:
 ${resumeText}
 
 Skills:
 ${skills}
 
-Provide analysis in this format:
+Return analysis in this format:
 
 Strengths:
 - ...
@@ -48,13 +44,22 @@ ATS Improvements:
 - ...
 `;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    const completion = await groq.chat.completions.create({
 
-    res.json({
-      analysis: text
+      messages: [
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+
+      model: "llama3-70b-8192"
+
     });
+
+    const analysis = completion.choices[0].message.content;
+
+    res.json({ analysis });
 
   } catch (error) {
 
@@ -65,58 +70,63 @@ ATS Improvements:
     });
 
   }
+
 });
 
+
+/*
+AI Suggestions
+*/
 router.post("/suggestions", async (req, res) => {
-    try {
-  
-      const { resumeText, skills } = req.body;
-  
-      if (!resumeText) {
-        return res.status(400).json({
-          message: "Resume text is required"
-        });
-      }
-  
-      const model = genAI.getGenerativeModel({
-        model: "gemini-1.5-flash"
-      });
-  
-      const prompt = `
-  You are an expert ATS resume reviewer.
-  
-  Analyze this resume and provide clear improvement suggestions.
-  
-  Resume:
-  ${resumeText}
-  
-  Skills:
-  ${skills}
-  
-  Give 5 bullet point suggestions to improve this resume.
-  `;
-  
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const text = response.text();
-  
-      const suggestions = text
-        .split("\n")
-        .filter(line => line.trim() !== "");
-  
-      res.json({
-        suggestions
-      });
-  
-    } catch (error) {
-  
-      console.error(error);
-  
-      res.status(500).json({
-        message: "AI suggestions generation failed"
-      });
-  
-    }
-  });
+
+  try {
+
+    const { resumeText, skills } = req.body;
+
+    const prompt = `
+You are an ATS resume expert.
+
+Analyze this resume:
+
+${resumeText}
+
+Skills:
+${skills}
+
+Give 5 short bullet suggestions to improve the resume.
+`;
+
+    const completion = await groq.chat.completions.create({
+
+      messages: [
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+
+      model: "llama3-70b-8192"
+
+    });
+
+    const text = completion.choices[0].message.content;
+
+    const suggestions = text
+      .split("\n")
+      .filter(line => line.trim() !== "");
+
+    res.json({ suggestions });
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+      message: "AI suggestions failed"
+    });
+
+  }
+
+});
 
 module.exports = router;
