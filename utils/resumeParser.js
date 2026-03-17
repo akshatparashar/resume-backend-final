@@ -64,19 +64,29 @@ exports.extractResumeData = (text) => {
 // Helper functions for extraction
 function extractName(text) {
 
-  const lines = text.split('\n').filter(l => l.trim() !== '');
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
 
-  for (let line of lines.slice(0,5)) {
+  const blacklist = [
+    "SKILLS",
+    "PROJECTS",
+    "ABOUT",
+    "ABOUT ME",
+    "EDUCATION",
+    "EXPERIENCE"
+  ];
 
-    const cleanLine = line.trim();
+  for (let line of lines) {
 
-    if (
-      cleanLine.length < 40 &&
-      !cleanLine.includes('@') &&
-      !cleanLine.toLowerCase().includes("resume") &&
-      !cleanLine.toLowerCase().includes("curriculum")
-    ) {
-      return cleanLine;
+    const words = line.split(" ");
+
+    const isPossibleName =
+      words.length >= 2 &&
+      words.length <= 3 &&
+      line === line.toUpperCase() &&
+      !blacklist.includes(line);
+
+    if (isPossibleName) {
+      return line;
     }
 
   }
