@@ -24,18 +24,19 @@ exports.matchJobDescription = async (resumeData, jobDescription) => {
   const jdKeywords = extractKeywordsFromJD(jobDescription);
 
   // Calculate skill match
-  result.matchedSkills = resumeData.extractedData.skills.filter(skill =>
+  const resumeSkills = resumeData.skills || [];
+
+  result.matchedSkills = resumeSkills.filter(skill =>
     jdSkills.some(jdSkill => skill.toLowerCase().includes(jdSkill.toLowerCase()))
   );
-
+  
   result.missingSkills = jdSkills.filter(jdSkill =>
-    !resumeData.extractedData.skills.some(skill => skill.toLowerCase().includes(jdSkill.toLowerCase()))
+    !resumeSkills.some(skill => skill.toLowerCase().includes(jdSkill.toLowerCase()))
   );
-
   result.matchScores.skills = Math.round((result.matchedSkills.length / Math.max(jdSkills.length, 1)) * 100);
 
   // Calculate keyword match
-  const resumeText = resumeData.parsedContent.toLowerCase();
+  const resumeText = JSON.stringify(resumeData).toLowerCase();
   result.matchedKeywords = jdKeywords
     .filter(keyword => resumeText.includes(keyword.toLowerCase()))
     .map(keyword => ({
