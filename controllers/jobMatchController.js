@@ -48,8 +48,11 @@ exports.matchJob = async (req, res) => {
     }
 
     // Perform matching
-    const matchResult = matchJobDescription(
-      resume.parsedData,
+    const matchResult = await matchJobDescription(
+      {
+        ...resume.parsedData,
+        resumeText: resume.resumeText
+      },
       jobDescription
     );
     // Save match result

@@ -51,8 +51,7 @@ exports.matchJobDescription = async (resumeData, jobDescription) => {
   result.matchScores.keywords = Math.round((result.matchedKeywords.length / Math.max(jdKeywords.length, 1)) * 100);
 
   // Calculate experience match (simplified)
-  result.matchScores.experience = calculateExperienceMatch(resumeData.extractedData, jobDescription);
-
+  result.matchScores.experience = calculateExperienceMatch(resumeData, jobDescription);
   // Calculate overall match
   result.matchScores.overall = Math.round(
     (result.matchScores.skills * 0.4) +
@@ -67,7 +66,7 @@ exports.matchJobDescription = async (resumeData, jobDescription) => {
   if (isAIEnabled()) {
     try {
       const aiInsights = await analyzeJobMatchWithAI(
-        resumeData.parsedContent,
+        resumeData.resumeText || "",
         jobDescription,
         result
       );
@@ -129,22 +128,20 @@ function extractKeywordsFromJD(jd) {
   return [...new Set(found)];
 }
 
-function calculateExperienceMatch(extractedData, jd) {
+function calculateExperienceMatch(resumeData, jd) {
   // Look for experience requirements in JD
   const yearMatch = jd.match(/(\d+)\+?\s*years?/i);
 
   if (!yearMatch) {
     // If no specific years mentioned, check experience presence
-    return extractedData.experience && extractedData.experience.length > 0 ? 85 : 60;
+    return resumeData.experience && resumeData.experience.length > 0 ? 85 : 60;
   }
 
   const requiredYears = parseInt(yearMatch[1]);
-  const hasExperience = extractedData.experience && extractedData.experience.length > 0;
-
+  const hasExperience = resumeData.experience && resumeData.experience.length > 0;
   // Simplified calculation based on number of roles
   if (hasExperience) {
-    const roleCount = extractedData.experience.length;
-
+    const roleCount = resumeData.experience.length;
     if (requiredYears <= 2 && roleCount >= 1) return 90;
     if (requiredYears <= 5 && roleCount >= 2) return 90;
     if (requiredYears > 5 && roleCount >= 3) return 85;
